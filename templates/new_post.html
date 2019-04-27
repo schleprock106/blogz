@@ -1,17 +1,28 @@
 {% extends "base.html" %}
 
 {% block content %}
-<form method= 'post'>
-    <label>
-        Title
-        <input type="text" name='blog_title' />
-    </label>
-    <label>
-        Body 
-        <input type="text" name='blog_body' />
-    </label>
-        
+
+<center><h1>Add a Blog Entry</h1></center>
+<form action="/newpost" method= 'post'>
+    <table>
+
+    <tr>
+        <td><label for = 'blog_title'>Title</label></td>
+    </tr>   
+            
+    <tr>   
+        <td><input type="text" name='blog_title' value = '{{blog_title}}' /></td>
+        <td>><span>{{title_error}}</span></td>
+    </tr>
+
+    <tr>
+        <td><label for = 'blog_body'>Body</label></td>
+    </tr>
+    <tr>
+        <td><textarea><input type= 'text' name='blog_body' value = '{{blog_body}}'/></textarea></td>
+        <td><span>{{body_error}}</span</td>>
+    </tr>
     <input type="submit" value='Add blog' />
 </form>
-
+</table>
 {% endblock %}

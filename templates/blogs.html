@@ -2,7 +2,7 @@
 
 {% block content %}
 
-    <h1>Build-a-Blog</h1>
+    <center><h1>Build-a-Blog</h1></center>
     
 
    
@@ -11,11 +11,12 @@
     <p>No blogs yet</p>
     {% else %}
 
-        <ul>
+        
             {% for blog in blogs %}
-            <li>{{blog}}</li>
+            <h2>{{blog_title}}</h2>
+            <h3>{{blog_body}}</h3>
             {% endfor%}
-        </ul>
+        
 
     {% endif %}
 {% endblock %}
