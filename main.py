@@ -17,8 +17,8 @@ class Blog(db.Model):
     body = db.Column(db.String(300))
 
     def __init__(self, title, body):
-        self.title = blog_title
-        self.body = blog_body
+        self.title = title
+        self.body = body
 
 
 @app.route('/', methods = ['POST','GET'])
@@ -33,43 +33,59 @@ def display_blogs():
 @app.route('/newpost', methods=['POST', 'GET'])
 def new_post():
 
-    blog_title = ''
-    blog_body = ''
+    title = ''
+    body = ''
 
     
 
     title_error = ''
     body_error = ''
 
+    if request.method == 'GET':
+        return render_template ('new_post.html')
+
+
     if request.method == 'POST':
         
-        title = request.form['blog_title']
-        body = request.form['blog_body']
+        blog_title = request.form['title']
+        blog_body = request.form['body']
 
-        if blog_title == '':
+        if title == '':
             title_error = "Please enter Blog Title"
 
-        if blog_body == '':
+        if body == '':
             body_error = "Please enter text for blog"
 
         if title_error and body_error:
             return render_template('new_post.html', title_error = title_error, body_error = body_error)
         elif title_error  and not body_error:
-            return render_template('new_post.html', blog_body, title_error = title_error)
+            return render_template('new_post.html', body = body, title_error = title_error)
         elif body_error  and not title_error:
-            return render_template('new_post.html', blog_title, body_error = body_error)
+            return render_template('new_post.html', title = title, body_error = body_error)
 
     
 
-    else:
-        new_blog = Blog(blog_title, blog_body)
-        db.session.add(new_blog)
-        db.session.commit()
+        else:
+            new_blog = Blog(blog_title, blog_body)
+            db.session.add(new_blog)
+            db.session.commit()
 
-        return redirect ('/')
+            return redirect ('/individual?id=' + str(new_blog.id))
 
-    if request.method == 'GET':
-        return render_template ('new.post.html')
+        
+
+
+    
+@app.route('/individual', methods =  ['GET'])
+def individual_post():
+
+
+    blog_id = request.args.get(id)
+    new_blog = Blog.query.get('blog_id')
+    
+
+    return render_template('individual.html', new_blog = new_blog)
+    
     
 
 if __name__ == "__main__":        

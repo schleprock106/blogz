@@ -4,7 +4,7 @@
 
     <center><h1>Build-a-Blog</h1></center>
     
-
+    
    
 
     {% if blogs|length == 0 %}
@@ -13,8 +13,8 @@
 
         
             {% for blog in blogs %}
-            <h2>{{blog_title}}</h2>
-            <h3>{{blog_body}}</h3>
+            <h2>{{title}}</h2>
+            <h3>{{body}}</h3>
             {% endfor%}
         
 
