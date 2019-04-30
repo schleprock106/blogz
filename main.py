@@ -57,9 +57,9 @@ def new_post():
         if title_error and body_error:
             return render_template('new_post.html', title_error = title_error, body_error = body_error)
         elif title_error  and not body_error:
-            return render_template('new_post.html', body = body, title_error = title_error)
+            return render_template('new_post.html', blog_body = blog_body, title_error = title_error)
         elif body_error  and not title_error:
-            return render_template('new_post.html', title = title, body_error = body_error)
+            return render_template('new_post.html', blog_title = blog_title, body_error = body_error)
 
     
 
