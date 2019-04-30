@@ -33,27 +33,25 @@ def display_blogs():
 @app.route('/newpost', methods=['POST', 'GET'])
 def new_post():
 
-    title = ''
-    body = ''
 
-    
 
-    title_error = ''
-    body_error = ''
 
     if request.method == 'GET':
         return render_template ('new_post.html')
 
 
     if request.method == 'POST':
+
+        title_error = ''
+        body_error = ''
         
         blog_title = request.form['title']
         blog_body = request.form['body']
 
-        if title == '':
+        if blog_title == '':
             title_error = "Please enter Blog Title"
 
-        if body == '':
+        if blog_body == '':
             body_error = "Please enter text for blog"
 
         if title_error and body_error:
@@ -80,11 +78,11 @@ def new_post():
 def individual_post():
 
 
-    blog_id = request.args.get(id)
-    new_blog = Blog.query.get('blog_id')
+    blog_id = request.args.get('id')
+    blog = Blog.query.filter_by(id=blog_id).first()
     
 
-    return render_template('individual.html', new_blog = new_blog)
+    return render_template('individual.html', blog = blog)
     
     
 
