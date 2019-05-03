@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, render_template
+from flask import Flask, request, redirect, render_template, session
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -13,7 +13,7 @@ class Blog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(120))
     body = db.Column(db.String(300))
-    owner_id = db.Column(db.Interger, db.ForeignKey('user_id'))
+    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     def __init__(self, title, body, owner):
         self.title = title
@@ -54,40 +54,47 @@ def login():
 
 @app.route('/register', methods=['POST', 'GET'])
 def register():
+
+
     if request.method == 'POST':
         username = request.form['username']
-        password = requset.form['password']
-        verify = requset.form['verify']
-    username_error = ""
-    password_error = ""
-    verify_password_error = ""
+        password = request.form['password']
+        verify_password = request.form['verify']
+        username_error = ""
+        password_error = ""
+        verify_password_error = ""
+        
+        existing_user = User.query.filter_by(username=username).first()
+        if existing_user:
+            username_error = "Username alreasy exist, please enter another username."
+
+
+        if len(username) < 3 or len(username) > 20:
+            username_error = "Please enter valid username, (3-20) characters."
+
+        if len(password) < 3 or len(password) > 20:
+            password_error = "Please enter valid password, (3-20) characters"
+
+        if verify_password != password:
+            verify_password_error = "Passwords do not match. Please re-enter password"
+
+
+        if len(username_error) !=0 or len(password_error) !=0 or len(verify_password_error) != 0:
+            return render_template("signup.html", username_error = username_error, password_error = password_error,
+            verify_password_error = verify_password_error)
+            
+        else:  
+            new_user = User(username, password)
+            db.session.add(new_user)
+            db.session.commit()
+            session['username'] = username
+            return redirect('/newpost')
+
+    return render_template('signup.html')
+       
+         
+
     
-
-    if len(username) < 3 or len(username) > 20:
-        username_error = "Please enter valid username, (3-20) characters."
-
-    if len(password) < 3 or len(password) > 20:
-        password_error = "Please enter valid password, (3-20) characters"
-
-    if verify_password != password:
-        verify_password_error = "Passwords do not match. Please re-enter password"
-
-
-    if len(username_error) !=0 or len(password_error) !=0 or len(verify_password_error) != 0:
-        return render_template("signup.html", username_error = username_error, password_error = password_error,
-        verify_password_error = verify_password_error, email_error = email_error)
-    else:
-        return render_template("signup.html", username = username) 
-
-    existing_user = User.query.filter_by(username=username).first()
-    if not existing_user:
-        new_user = User(username, password)
-        db.session.add(new_user)
-        db.session.commit()
-        session['username'] = username
-        return redirect('/')
-    else:
-        return '<h1>Username already exist. Choose another Username.<h1>'
 
 @app.route('/logout')
 def logout():
@@ -97,11 +104,17 @@ def logout():
 
 
 @app.route('/', methods = ['POST','GET'])
+def display_user():
+    usernames = User.query.all()
+    return 
+
+
+
 def display_blogs():
 
     blogs = Blog.query.all()
 
-    return render_template('blogs.html', title="Build-a Blog", blogs = blogs)
+    return render_template('blogs.html', title="Blogz", blogs = blogs)
 
 
 
@@ -139,7 +152,10 @@ def new_post():
     
 
         else:
-            new_blog = Blog(blog_title, blog_body)
+            username = session.get('username') 
+            user = User.query.filter_by(username = username).first()
+
+            new_blog = Blog(blog_title, blog_body, user)
             db.session.add(new_blog)
             db.session.commit()
 
