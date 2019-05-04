@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, render_template, session
+from flask import Flask, request, redirect, render_template, session, flash
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -34,7 +34,7 @@ class User(db.Model):
 def require_login():
     allowed_routes = ['login', 'register']
     if request.endpoint not in allowed_routes and 'username' not in session:
-        return redirect('login')
+        return redirect('/login')
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
@@ -102,19 +102,30 @@ def logout():
     return redirect('/')
     
 
-
-@app.route('/', methods = ['POST','GET'])
+@app.route('/', methods = ['POST', 'GET'])
 def display_user():
-    usernames = User.query.all()
-    return 
+    users = User.query.all()
+    return render_template('index.html', users = users)
+  
 
 
-
+@app.route('/blogs')
 def display_blogs():
 
-    blogs = Blog.query.all()
+    blog_id = request.args.get('user.id')
+    user_id = request.args.get('user')
+    if blog_id:       
 
-    return render_template('blogs.html', title="Blogz", blogs = blogs)
+        blog = Blog.query.get(blog_id)
+        return render_template('individual.html', blog = blog)
+       
+    elif user_id:
+        user = User.query.get(user_id)
+        return render_template('blogs.html', blogs = user.blogs)
+    else:
+        return render_template('blogs.html', blogs = Blog.query.all())
+        
+
 
 
 

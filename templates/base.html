@@ -7,19 +7,37 @@
         .error {
             color: red;
         }
-    
-    
+ 
     </style>
     <nav>
         <a href = '/newpost'>Newpost</a>
     </nav>
     <nav>
-        <a href = '/'>Main Page</a>
+        <a href = '/'>Bloggers</a>
     </nav>
     <nav>
-        <a href='/logout'>log out</a>
+        <a href='/logout'>Log out</a>
+    </nav>
+    <nav>
+        <a href='/login'>Log in</a>
+    </nav>
+    <nav>
+        <a href='/'>Home</a>
+    </nav>
+    <nav>
+        <a href='/blogs'>Individual Posts</a>
     </nav>
 <body>
+
+    {% with messages = get_flashed_messages(with_categories=True) %}
+    <ul>
+    {% for category,message in messages %}
+        <li class="{{category}}">{{message}}</li>
+    
+    {% endfor %}
+    </ul>
+
+    {% endwith %}
 
     {% block content %}
     {% endblock %}
