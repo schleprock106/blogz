@@ -23,7 +23,7 @@ class Blog(db.Model):
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(120), unique=True)
-    password = db.Column(db.String(120), unique=True)
+    password = db.Column(db.String(120))
     blogs = db.relationship('Blog', backref='owner')
 
     def __init__(self, username, password):
@@ -45,7 +45,6 @@ def login():
         if user and user.password == password:
             session['username'] = username
             flash('Logged in')
-            print(session)
             return redirect('/')
         else:
             flash('User password incorrect, or user does not exist', 'error')
@@ -112,8 +111,9 @@ def display_user():
 @app.route('/blogs')
 def display_blogs():
 
-    blog_id = request.args.get('user.id')
-    user_id = request.args.get('user')
+    
+    blog_id = request.args.get('blog_id')
+    user_id = request.args.get('user_id')
     if blog_id:       
 
         blog = Blog.query.get(blog_id)
@@ -121,7 +121,8 @@ def display_blogs():
        
     elif user_id:
         user = User.query.get(user_id)
-        return render_template('blogs.html', blogs = user.blogs)
+        blogs = Blog.query.filter_by(owner = user).all()
+        return render_template('singleUser.html', blogs = blogs)
     else:
         return render_template('blogs.html', blogs = Blog.query.all())
         
@@ -166,7 +167,8 @@ def new_post():
             username = session.get('username') 
             user = User.query.filter_by(username = username).first()
 
-            new_blog = Blog(blog_title, blog_body, user)
+            new_blog = Blog(blog_title, blog_body)
+            
             db.session.add(new_blog)
             db.session.commit()
 
@@ -185,7 +187,9 @@ def individual_post():
     
 
     return render_template('individual.html', blog = blog)
-    
+
+
+
     
 
 if __name__ == "__main__":        
