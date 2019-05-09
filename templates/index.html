@@ -9,8 +9,9 @@
 
         
             {% for user in users %}
+            
                 <ul>
-                    <li><a href = '/blogs?user_id={{user.id}}'>{{user.username}}</a></li>
+                    <li><a href = '/blogs?user={{user.id}}'>{{user.username}}</a></li>
                 </ul>
 
             {% endfor %}

@@ -18,7 +18,7 @@ class Blog(db.Model):
     def __init__(self, title, body, owner):
         self.title = title
         self.body = body
-        self.owner_id = owner
+        self.owner = owner
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -32,7 +32,7 @@ class User(db.Model):
 
 @app.before_request
 def require_login():
-    allowed_routes = ['login', 'register', 'display_user', 'display_blogs']
+    allowed_routes = ['login', 'register', 'display_user', 'display_blogs', 'individual_post']
     if request.endpoint not in allowed_routes and 'username' not in session:
         return redirect('/login')
 
@@ -98,7 +98,7 @@ def register():
 @app.route('/logout')
 def logout():
     del session['username']
-    return redirect('/')
+    return redirect('/blogs')
     
 
 @app.route('/', methods = ['POST', 'GET'])
@@ -110,6 +110,7 @@ def display_user():
 
 @app.route('/blogs')
 def display_blogs():
+
 
     
     if request.args.get('id'):       
@@ -135,6 +136,7 @@ def display_blogs():
 def new_post():
 
     if request.method == 'POST':
+        # POST REQUEST
     
         title_error = ''
         body_error = ''
@@ -151,6 +153,7 @@ def new_post():
             body_error = "Please enter text for blog"
 
         if not title_error and not body_error:
+            # NO ERROR
 
             blog = Blog(title, body, owner)
             
@@ -159,8 +162,14 @@ def new_post():
 
 
             return redirect ('/individual?id=' + str(blog.id))
+        else:
+            # ERROR(S)
+            # TODO fix this
+            return render_template('new_post.html', title_error=title_error, 
+                                    body_error=body_error, title=title, body=body)
 
     else:
+        # GET REQUEST
         return render_template ('new_post.html')    
 
 
@@ -168,14 +177,10 @@ def new_post():
 @app.route('/individual', methods =  ['GET'])
 def individual_post():
 
-
     blog_id = request.args.get('id')
     blog = Blog.query.filter_by(id=blog_id).first()
-    title = blog.title
-    body = blog.body
-    author = blog.owner
 
-    return render_template('individual.html', title = title, body = body, author = author)
+    return render_template('individual.html', blog = blog)
 
 
 

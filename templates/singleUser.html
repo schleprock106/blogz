@@ -4,8 +4,9 @@
 
     {% for blog in blogs %}
 
-        <h1><a href = '/blogs?blog_id={{blog.id}}'>{{blog.title}}</a></h1>
+        <h1><a href = '/blogs?id={{blog.id}}'>{{blog.title}}</a></h1>
         <h1>{{blog.body}}</h1>
+        <p>Written by: <a href = '/blogs?user={{blog.owner.id}}'>{{blog.owner.username}}</a></p>
     
     {% endfor %}
 

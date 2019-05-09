@@ -2,10 +2,9 @@
 
 {% block content %}
 
-    <h2>{{title}}</h2>
-    <h1>{{body}}</h1>
-    <p>Written by:<a href = '/blogs?userid={{author.id}}'>{{author}}</a></p>
-    
+    <h2>{{blog.title}}</h2>
+    <h1>{{blog.body}}</h1>
+    <p>Written by:<a href = '/blogs?user={{blog.owner.id}}'>{{blog.owner.username}}</a></p>
 
 
 {% endblock %}
