@@ -18,7 +18,7 @@ class Blog(db.Model):
     def __init__(self, title, body, owner):
         self.title = title
         self.body = body
-        self.owner = owner
+        self.owner_id = owner
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -32,7 +32,7 @@ class User(db.Model):
 
 @app.before_request
 def require_login():
-    allowed_routes = ['login', 'register']
+    allowed_routes = ['login', 'register', 'display_user', 'display_blogs']
     if request.endpoint not in allowed_routes and 'username' not in session:
         return redirect('/login')
 
@@ -112,19 +112,20 @@ def display_user():
 def display_blogs():
 
     
-    blog_id = request.args.get('blog_id')
-    user_id = request.args.get('user_id')
-    if blog_id:       
-
+    if request.args.get('id'):       
+        
+        blog_id = request.args.get('id')
         blog = Blog.query.get(blog_id)
         return render_template('individual.html', blog = blog)
        
-    elif user_id:
+    elif request.args.get('user'):
+        user_id = request.args.get('user')
         user = User.query.get(user_id)
-        blogs = Blog.query.filter_by(owner = user).all()
+        blogs = Blog.query.filter_by(owner_id = user_id).all()
         return render_template('singleUser.html', blogs = blogs)
     else:
-        return render_template('blogs.html', blogs = Blog.query.all())
+        blogs = Blog.query.all()
+        return render_template('blogs.html', blogs = blogs, title = 'All Blogs')
         
 
 
@@ -133,48 +134,34 @@ def display_blogs():
 @app.route('/newpost', methods=['POST', 'GET'])
 def new_post():
 
-
-
-
-    if request.method == 'GET':
-        return render_template ('new_post.html')
-
-
     if request.method == 'POST':
-
+    
         title_error = ''
         body_error = ''
         
-        blog_title = request.form['title']
-        blog_body = request.form['body']
+        title = request.form['title']
+        body = request.form['body']
 
-        if blog_title == '':
+        owner = User.query.filter_by(username=session['username']).first()
+
+        if title == '':
             title_error = "Please enter Blog Title"
 
-        if blog_body == '':
+        if body == '':
             body_error = "Please enter text for blog"
 
-        if title_error and body_error:
-            return render_template('new_post.html', title_error = title_error, body_error = body_error)
-        elif title_error  and not body_error:
-            return render_template('new_post.html', blog_body = blog_body, title_error = title_error)
-        elif body_error  and not title_error:
-            return render_template('new_post.html', blog_title = blog_title, body_error = body_error)
+        if not title_error and not body_error:
 
-    
-
-        else:
-            username = session.get('username') 
-            user = User.query.filter_by(username = username).first()
-
-            new_blog = Blog(blog_title, blog_body)
+            blog = Blog(title, body, owner)
             
-            db.session.add(new_blog)
+            db.session.add(blog)
             db.session.commit()
 
-            return redirect ('/individual?id=' + str(new_blog.id))
 
-        
+            return redirect ('/individual?id=' + str(blog.id))
+
+    else:
+        return render_template ('new_post.html')    
 
 
     
@@ -184,9 +171,11 @@ def individual_post():
 
     blog_id = request.args.get('id')
     blog = Blog.query.filter_by(id=blog_id).first()
-    
+    title = blog.title
+    body = blog.body
+    author = blog.owner
 
-    return render_template('individual.html', blog = blog)
+    return render_template('individual.html', title = title, body = body, author = author)
 
 
 
